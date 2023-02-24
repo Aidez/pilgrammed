@@ -39,7 +39,7 @@ local function MultitoolConnection(Action, State, Input)
                     v.Slash:FireServer(1)
                 end)
             end
-        else
+        elseif CurrentTool ~= nil then
             if State == Enum.UserInputState.Begin then
                 CurrentTool:Activate()
             elseif State == Enum.UserInputState.End then
