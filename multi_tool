@@ -1,0 +1,67 @@
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+if Player == nil then
+    Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+    Player = Players.LocalPlayer
+end
+local ContextActionService = game:GetService("ContextActionService")
+local Multitool = true
+local function SortTools(a,b)
+    return a:GetAttribute("Damage") > b:GetAttribute("Damage")
+end
+game:GetService("UserInputService").InputBegan:Connect(function(Input)
+    if Input.UserInputType == Enum.UserInputType.MouseButton1 and Multitool and Player.Character then
+        local Tools = {}
+        local CurrentTool = Player.Character:FindFirstChildOfClass("Tool")
+        if CurrentTool and CurrentTool:FindFirstChild("Slash") and not string.find(CurrentTool.Name, "Pick") then
+            local Children = Player.Backpack:GetChildren()
+            if Player.Character ~= nil then
+                local CharacterChildren = Player.Character:GetChildren()
+                local BackpackChildren = Children
+                Children = table.create(#BackpackChildren + #CharacterChildren)
+                table.move(BackpackChildren, 1, #BackpackChildren, 1, Children)
+                table.move(CharacterChildren, 1, #CharacterChildren, #Children+1, Children)
+            end
+            for _,v in ipairs(Children) do
+                if v:IsA("Tool") and v:GetAttribute("Type") == CurrentTool:GetAttribute("Type") then
+                    table.insert(Tools,v)
+                    v.Parent = Player.Character
+                end
+            end
+            table.sort(Tools,SortTools)
+            for _,v in ipairs(Tools) do
+                if Player.Character:FindFirstChild("Cooldown") then
+                    Player.Character.Cooldown:Destroy()
+                end
+                spawn(function()
+                    -- v:Activate()
+                    v.Slash:FireServer(1)
+                end)
+            end
+        end
+    end
+end)
+ContextActionService:BindActionAtPriority("Toggle",function(Action, State, Input)
+    if State == Enum.UserInputState.Begin then
+        Multitool = not Multitool
+        local Message = ""
+        if Multitool then
+            Message = "Multitool is now ON!"
+        else
+            Message = "Multitool is now OFF!"
+        end
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "notification";
+            Text = Message;
+            Icon = "rbxassetid://2541869220";
+            Duration = 3;
+        })
+    end
+end,false,Enum.ContextActionPriority.High.Value,Enum.KeyCode.H)
+
+game.StarterGui:SetCore("SendNotification", {
+    Title = "Injected!";
+    Text = "H to toggle. Swing a melee weapon to use multi-tool.";
+    Icon = "rbxassetid://2541869220";
+    Duration = 3;
+})
