@@ -6,16 +6,17 @@ if Player == nil then
 end
 local ContextActionService = game:GetService("ContextActionService")
 local Multitool = true
+local HoldingSword = false
 local function SortTools(a,b)
     return a:GetAttribute("Damage") > b:GetAttribute("Damage")
 end
-game:GetService("UserInputService").InputBegan:Connect(function(Input)
-    if Input.UserInputType == Enum.UserInputType.MouseButton1 and Multitool and Player.Character then
+local function MultitoolConnection(Action, State, Input)
+    if Multitool and Player.Character then
         local Tools = {}
         local CurrentTool = Player.Character:FindFirstChildOfClass("Tool")
-        if CurrentTool and CurrentTool:FindFirstChild("Slash") and not string.find(CurrentTool.Name, "Pick") then
+        if State == Enum.UserInputState.Begin and CurrentTool and CurrentTool:FindFirstChild("Slash") and not string.find(CurrentTool.Name, "Pick") then
             local Children = Player.Backpack:GetChildren()
-            if Player.Character ~= nil then
+            if Player.Character then
                 local CharacterChildren = Player.Character:GetChildren()
                 local BackpackChildren = Children
                 Children = table.create(#BackpackChildren + #CharacterChildren)
@@ -38,16 +39,24 @@ game:GetService("UserInputService").InputBegan:Connect(function(Input)
                     v.Slash:FireServer(1)
                 end)
             end
+        else
+            if State == Enum.UserInputState.Begin then
+                CurrentTool:Activate()
+            elseif State == Enum.UserInputState.End then
+                CurrentTool:Deactivate()
+            end
         end
     end
-end)
+end
 ContextActionService:BindActionAtPriority("Toggle",function(Action, State, Input)
     if State == Enum.UserInputState.Begin then
         Multitool = not Multitool
         local Message = ""
         if Multitool then
+            ContextActionService:BindActionAtPriority("Multitool",MultitoolConnection,false,Enum.ContextActionPriority.High.Value,Enum.UserInputType.MouseButton1)
             Message = "Multitool is now ON!"
         else
+            ContextActionService:UnbindAction("Multitool")
             Message = "Multitool is now OFF!"
         end
         game.StarterGui:SetCore("SendNotification", {
@@ -58,6 +67,7 @@ ContextActionService:BindActionAtPriority("Toggle",function(Action, State, Input
         })
     end
 end,false,Enum.ContextActionPriority.High.Value,Enum.KeyCode.H)
+ContextActionService:BindActionAtPriority("Multitool",MultitoolConnection,false,Enum.ContextActionPriority.High.Value,Enum.UserInputType.MouseButton1)
 
 game.StarterGui:SetCore("SendNotification", {
     Title = "Injected!";
