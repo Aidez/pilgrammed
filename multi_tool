@@ -6,7 +6,7 @@ if Player == nil then
 end
 local ContextActionService = game:GetService("ContextActionService")
 local Multitool = true
-local HoldingSword = false
+local SpamTool = false
 local function SortTools(a,b)
     return a:GetAttribute("Damage") > b:GetAttribute("Damage")
 end
@@ -49,7 +49,7 @@ local function MultitoolConnection(Action, State, Input)
     end
 end
 ContextActionService:BindActionAtPriority("Toggle",function(Action, State, Input)
-    if State == Enum.UserInputState.Begin then
+    if Input.KeyCode == Enum.KeyCode.H and State == Enum.UserInputState.Begin then
         Multitool = not Multitool
         local Message = ""
         if Multitool then
@@ -65,13 +65,25 @@ ContextActionService:BindActionAtPriority("Toggle",function(Action, State, Input
             Icon = "rbxassetid://2541869220";
             Duration = 3;
         })
+       return
     end
-end,false,Enum.ContextActionPriority.High.Value,Enum.KeyCode.H)
+    if Input.KeyCode == Enum.KeyCode.T then
+        if State == Enum.UserInputState.Begin then
+            SpamTool = true
+            repeat
+                MultitoolConnection(nil,Enum.UserInputState.Begin,nil)
+                task.wait()
+            until not SpamTool
+        elseif State == Enum.UserInputState.End then
+            SpamTool = false
+        end
+    end
+end,false,Enum.ContextActionPriority.High.Value,Enum.KeyCode.H,Enum.KeyCode.T)
 ContextActionService:BindActionAtPriority("Multitool",MultitoolConnection,false,Enum.ContextActionPriority.High.Value,Enum.UserInputType.MouseButton1)
 
 game.StarterGui:SetCore("SendNotification", {
     Title = "Injected!";
-    Text = "H to toggle. Swing a melee weapon to use multi-tool.";
+    Text = "H to toggle. Swing a melee weapon to use multi-tool. Hold T to spam multi-tool.";
     Icon = "rbxassetid://2541869220";
     Duration = 3;
 })
