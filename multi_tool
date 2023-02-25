@@ -83,7 +83,7 @@ ContextActionService:BindActionAtPriority("Multitool",MultitoolConnection,false,
 
 game.StarterGui:SetCore("SendNotification", {
     Title = "Injected!";
-    Text = "H to toggle. Swing a melee weapon to use multi-tool. Hold T to spam multi-tool.";
+    Text = "H to toggle. Hold T to spam multi tool. \nMade by Aidez";
     Icon = "rbxassetid://2541869220";
-    Duration = 3;
+    Duration = 10;
 })
