@@ -23,6 +23,16 @@ local function MultitoolConnection(Action, State, Input)
                 table.move(BackpackChildren, 1, #BackpackChildren, 1, Children)
                 table.move(CharacterChildren, 1, #CharacterChildren, #Children+1, Children)
             end
+            if not CurrentTool:GetAttribute("Type") then
+                if string.find(CurrentTool.Name, "Scythe") then
+                    CurrentTool:SetAttribute("Type","Scythe")
+                    for _,v in ipairs(Children) do
+                        if not v:GetAttribute("Type") and string.find(v.Name, "Scythe") then
+                            v:SetAttribute("Type","Scythe")
+                        end
+                    end
+                end
+            end
             for _,v in ipairs(Children) do
                 if v:IsA("Tool") and v:GetAttribute("Type") == CurrentTool:GetAttribute("Type") then
                     table.insert(Tools,v)
